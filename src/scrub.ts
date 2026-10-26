@@ -82,7 +82,10 @@ export const DEFAULT_PLACEHOLDERS: Readonly<ScrubPlaceholders> = {
 export interface ScrubOptions {
   /** Origine du consommateur (application ou Worker) : ses propres URL gardent leur chemin épuré. Absente : aucune. */
   origin?: string;
-  /** Résout une adresse relative sur `origin` (application). Sinon : un chemin relatif est épuré tel quel (Worker). */
+  /**
+   * Résout une adresse relative sur `origin` (application). Sinon : un chemin relatif est épuré tel quel (Worker).
+   * Sans `origin`, un chemin relatif est épuré (et non rejeté).
+   */
   resolveRelative?: boolean;
   /** Fragment d'une URL de l'origine (route `#/…`) : retourne la forme à garder. Absent : le fragment est retiré. */
   hash?: (hash: string) => string;
@@ -103,7 +106,7 @@ const DEBRID_PARAM = /\b((?:all|real)-?debrid\w*|torbox|premiumize|debridoptions
 const BEARER = /\bBearer\s+[^\s"'<>,;]+/gi;
 const LONG_SEGMENT_IN_TEXT = new RegExp(`/[^\\s/]{${MAX_SEGMENT + 1},}`, 'g');
 /** apikey / api_key / access_token / token / password / secret… en `clé=valeur`, `clé: valeur` ou JSON. */
-const SECRET = /(["']?(?:api[_-]?key|access[_-]?token|token|password|passwd|secret)["']?\s*[=:]\s*["']?)[^\s&"',;}<>]+/gi;
+const SECRET = /(["']?(?:api[_-]?key|access[_-]?token|token|password|passwd|secret)["']?\s*[=:]\s*["']?)[^\s&"',;]+/gi;
 
 type Dropped = { readonly dropped: 'debrid' | 'magnet' | 'other' };
 const DROP_DEBRID: Dropped = { dropped: 'debrid' };

@@ -221,6 +221,16 @@ describe('union des deux anciennes versions (le plus strict)', () => {
     expect(scrubText('magnet:xt=urn:btih:ABC', app)).toBe('[magnet retiré]');
     expect(scrubText('client_secret=ABC', app)).toBe('client_secret=[retiré]');
   });
+  it('valeur secrète : rien ne fuit après « < » (password=ab<cd)', () => {
+    const out = scrubText('password=ab<cd');
+    expect(out).not.toContain('ab');
+    expect(out).not.toContain('cd');
+  });
+  it('valeur secrète : rien ne fuit après « } » (token=ab}cd)', () => {
+    const out = scrubText('token=ab}cd');
+    expect(out).not.toContain('ab');
+    expect(out).not.toContain('cd');
+  });
   it('placeholders par défaut exposés', () => {
     expect(DEFAULT_PLACEHOLDERS.redacted).toBe('[redacted]');
   });

@@ -66,7 +66,7 @@ const DEBRID_PARAM = /\b((?:all|real)-?debrid\w*|torbox|premiumize|debridoptions
 const BEARER = /\bBearer\s+[^\s"'<>,;]+/gi;
 const LONG_SEGMENT_IN_TEXT = new RegExp(`/[^\\s/]{${MAX_SEGMENT + 1},}`, 'g');
 /** apikey / api_key / access_token / token / password / secret… en `clé=valeur`, `clé: valeur` ou JSON. */
-const SECRET = /(["']?(?:api[_-]?key|access[_-]?token|token|password|passwd|secret)["']?\s*[=:]\s*["']?)[^\s&"',;}<>]+/gi;
+const SECRET = /(["']?(?:api[_-]?key|access[_-]?token|token|password|passwd|secret)["']?\s*[=:]\s*["']?)[^\s&"',;]+/gi;
 const DROP_DEBRID = { dropped: 'debrid' };
 const DROP_MAGNET = { dropped: 'magnet' };
 const DROP_OTHER = { dropped: 'other' };

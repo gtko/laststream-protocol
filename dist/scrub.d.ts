@@ -46,7 +46,10 @@ export declare const DEFAULT_PLACEHOLDERS: Readonly<ScrubPlaceholders>;
 export interface ScrubOptions {
     /** Origine du consommateur (application ou Worker) : ses propres URL gardent leur chemin épuré. Absente : aucune. */
     origin?: string;
-    /** Résout une adresse relative sur `origin` (application). Sinon : un chemin relatif est épuré tel quel (Worker). */
+    /**
+     * Résout une adresse relative sur `origin` (application). Sinon : un chemin relatif est épuré tel quel (Worker).
+     * Sans `origin`, un chemin relatif est épuré (et non rejeté).
+     */
     resolveRelative?: boolean;
     /** Fragment d'une URL de l'origine (route `#/…`) : retourne la forme à garder. Absent : le fragment est retiré. */
     hash?: (hash: string) => string;
