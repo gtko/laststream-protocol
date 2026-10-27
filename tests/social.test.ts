@@ -272,6 +272,7 @@ const seriesEvening: Evening = {
   party: { partyId: 'p1', title: 'Soirée Dune' },
 };
 const eveningPage: EveningPage = { items: [evening, seriesEvening], nextCursor: 'c2' };
+const lastEveningPage: EveningPage = { items: [seriesEvening], nextCursor: null };
 
 const createBody: CreateEveningBody = {
   title: 'Soirée Dune',
@@ -284,10 +285,10 @@ const updateBody: UpdateEveningBody = { startsAt: 1_700_003_600_000, scope: 'occ
 const responseBody: EveningResponseBody = { response: 'maybe' };
 
 const eveningEvents: EveningEvent[] = [
-  { type: 'evening_invite', eveningId: 'e1', title: 'Soirée Dune', startsAt: 1_700_000_000_000, host: homeFriend },
+  { type: 'evening_invite', eveningId: 'e1', title: 'Soirée Dune', startsAt: 1_700_000_000_000, tz: 'Europe/Paris', host: homeFriend },
   { type: 'evening_update', eveningId: 'e1', change: 'cancelled' },
   { type: 'evening_response', eveningId: 'e1', pid: 'p-ana', response: 'yes' },
-  { type: 'evening_reminder', eveningId: 'e1', title: 'Soirée Dune', startsAt: 1_700_000_000_000 },
+  { type: 'evening_reminder', eveningId: 'e1', title: 'Soirée Dune', startsAt: 1_700_000_000_000, tz: 'Europe/Paris' },
   { type: 'evening_open', eveningId: 'e1', party: { partyId: 'p1', title: 'Soirée Dune' } },
 ];
 
@@ -392,6 +393,7 @@ describe('soirées planifiées (formes de réponse et trames)', () => {
     expect(seriesEvening.recurrence?.interval).toBe(2);
     expect(seriesEvening.party?.partyId).toBe('p1');
     expect(eveningPage.nextCursor).toBe('c2');
+    expect(lastEveningPage.nextCursor).toBeNull();
     expect(createBody.guests).toEqual(['p-ana']);
     expect(updateBody.scope).toBe('occurrence');
     expect(responseBody.response).toBe('maybe');
@@ -456,6 +458,36 @@ describe('soirées planifiées : écarts de forme refusés à la compilation', (
     // @ts-expect-error change inconnu
     const badChange: EveningEvent = { type: 'evening_update', eveningId: 'e1', change: 'moved' };
     expect(badChange.type).toBe('evening_update');
+  });
+
+  it('EveningPage exige `nextCursor` (`null` en fin de liste)', () => {
+    // @ts-expect-error nextCursor est requis
+    const noCursor: EveningPage = { items: [] };
+    expect(noCursor.items).toEqual([]);
+  });
+
+  it('EveningPage.nextCursor n\'accepte pas `undefined`', () => {
+    // @ts-expect-error undefined n'est pas une valeur de curseur : utiliser null
+    const undefinedCursor: EveningPage = { items: [], nextCursor: undefined };
+    expect(undefinedCursor.items).toEqual([]);
+  });
+
+  it('une trame evening_response n\'accepte pas `pending`', () => {
+    // @ts-expect-error `pending` n'est pas une réponse à une invitation
+    const pendingFrame: EveningEvent = { type: 'evening_response', eveningId: 'e1', pid: 'p-ana', response: 'pending' };
+    expect(pendingFrame.type).toBe('evening_response');
+  });
+
+  it('evening_invite exige `tz`', () => {
+    // @ts-expect-error tz est requis
+    const noTzInvite: EveningEvent = { type: 'evening_invite', eveningId: 'e1', title: 'Soirée Dune', startsAt: 1, host: homeFriend };
+    expect(noTzInvite.type).toBe('evening_invite');
+  });
+
+  it('evening_reminder exige `tz`', () => {
+    // @ts-expect-error tz est requis
+    const noTzReminder: EveningEvent = { type: 'evening_reminder', eveningId: 'e1', title: 'Soirée Dune', startsAt: 1 };
+    expect(noTzReminder.type).toBe('evening_reminder');
   });
 
   it('une trame de type inconnu est refusée', () => {

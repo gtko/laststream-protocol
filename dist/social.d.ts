@@ -562,8 +562,8 @@ export interface EveningGuest {
 }
 /**
  * Soirée planifiée, vue par un profil. `startsAt` : début (ms UTC) ; `tz` : fuseau IANA. `isHost` : le profil qui regarde
- * en est l'hôte ; `myResponse` : sa propre réponse. `overridden` : occurrence modifiée à part dans sa série. `party` : salon
- * de visionnage lié.
+ * en est l'hôte. `myResponse` : sa propre réponse, absente quand `isHost` vaut vrai. `overridden` : occurrence modifiée à
+ * part dans sa série. `party` : salon de visionnage lié.
  */
 export interface Evening {
     id: string;
@@ -580,10 +580,10 @@ export interface Evening {
     overridden: boolean;
     party?: PartyRef;
 }
-/** Page de soirées. `nextCursor` : curseur de la page suivante, absent s'il n'y en a pas. */
+/** Page de soirées. `nextCursor` : curseur de la page suivante, `null` en fin de liste (convention de `HiddenPageDto`). */
 export interface EveningPage {
     items: Evening[];
-    nextCursor?: string;
+    nextCursor: string | null;
 }
 /** Corps de création d'une soirée. `guests` : pid des amis invités, qui ont accepté. */
 export interface CreateEveningBody {
@@ -593,7 +593,10 @@ export interface CreateEveningBody {
     guests: string[];
     recurrence?: EveningRecurrence;
 }
-/** Corps de modification d'une soirée. `scope` : l'occurrence seule, ou toute la série. */
+/**
+ * Corps de modification d'une soirée. `scope` : l'occurrence seule, ou toute la série. Sans `title` ni `startsAt`, le
+ * serveur refuse le corps (400).
+ */
 export interface UpdateEveningBody {
     title?: string;
     startsAt?: number;
@@ -612,6 +615,7 @@ export type EveningEvent = {
     eveningId: string;
     title: string;
     startsAt: number;
+    tz: string;
     host: HomeFriend;
 } | {
     type: 'evening_update';
@@ -621,12 +625,13 @@ export type EveningEvent = {
     type: 'evening_response';
     eveningId: string;
     pid: string;
-    response: EveningResponse;
+    response: EveningResponseBody['response'];
 } | {
     type: 'evening_reminder';
     eveningId: string;
     title: string;
     startsAt: number;
+    tz: string;
 } | {
     type: 'evening_open';
     eveningId: string;
